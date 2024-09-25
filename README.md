@@ -1,4 +1,4 @@
-# Sistema de Gestión de Inventario para Papelería-
+# Sistema de Gestión de Inventario para Papelería
 
 Este proyecto es un sistema de gestión de inventarios para una papelería, diseñado para ser sencillo de usar y dirigido a usuarios con poca experiencia técnica. El sistema está dividido en un backend implementado en Go y un frontend con una interfaz gráfica desarrollada en Python usando Tkinter.
 
