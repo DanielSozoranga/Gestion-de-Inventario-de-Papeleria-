@@ -24,7 +24,7 @@ func main() {
 
 	// Ruta para obtener la lista de productos
 	router.GET("/productos", func(c *gin.Context) {
-		productos, err := obtenerProductos(db)
+		productos, err := ObtenerProductos(db)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener productos"})
 			return
@@ -34,24 +34,24 @@ func main() {
 
 	// Ruta para agregar un nuevo producto
 	router.POST("/productos", func(c *gin.Context) {
-		var producto struct {
+		var Producto struct {
 			Nombre         string  `json:"nombre"`
 			Cantidad       int     `json:"cantidad"`
 			PrecioUnitario float64 `json:"Precio_Unitario"`
 		}
 
-		if err := c.BindJSON(&producto); err != nil {
+		if err := c.BindJSON(&Producto); err != nil {
 			log.Println("Error en los datos JSON:", err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos"})
 			return
 		}
 
-		if producto.Nombre == "" || producto.Cantidad < 0 || producto.PrecioUnitario < 0 {
+		if Producto.Nombre == "" || Producto.Cantidad < 0 || Producto.PrecioUnitario < 0 {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos o incompletos"})
 			return
 		}
 
-		newID, err := agregarProducto(db, producto.Nombre, producto.Cantidad, producto.PrecioUnitario)
+		newID, err := AgregarProducto(db, Producto.Nombre, Producto.Cantidad, Producto.PrecioUnitario)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al insertar producto"})
 			return
@@ -71,23 +71,23 @@ func main() {
 			return
 		}
 
-		var producto struct {
+		var Producto struct {
 			Nombre         string  `json:"nombre"`
 			Cantidad       int     `json:"cantidad"`
 			PrecioUnitario float64 `json:"Precio_Unitario"`
 		}
 
-		if err := c.BindJSON(&producto); err != nil {
+		if err := c.BindJSON(&Producto); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos"})
 			return
 		}
 
-		if producto.Nombre == "" || producto.Cantidad < 0 || producto.PrecioUnitario < 0 {
+		if Producto.Nombre == "" || Producto.Cantidad < 0 || Producto.PrecioUnitario < 0 {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos o incompletos"})
 			return
 		}
 
-		err = actualizarProducto(db, id, producto.Nombre, producto.Cantidad, producto.PrecioUnitario)
+		err = ActualizarProducto(db, id, Producto.Nombre, Producto.Cantidad, Producto.PrecioUnitario)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				c.JSON(http.StatusNotFound, gin.H{"error": "Producto no encontrado"})
@@ -108,7 +108,7 @@ func main() {
 			return
 		}
 
-		err = eliminarProducto(db, id)
+		err = EliminarProducto(db, id)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				c.JSON(http.StatusNotFound, gin.H{"error": "Producto no encontrado"})
@@ -141,7 +141,7 @@ func conectarBaseDeDatos() (*sql.DB, error) {
 }
 
 // Función para obtener productos
-func obtenerProductos(db *sql.DB) ([]map[string]interface{}, error) {
+func ObtenerProductos(db *sql.DB) ([]map[string]interface{}, error) {
 	rows, err := db.Query("SELECT id, nombre, cantidad, Precio_Unitario FROM productos")
 	if err != nil {
 		return nil, err
@@ -167,7 +167,7 @@ func obtenerProductos(db *sql.DB) ([]map[string]interface{}, error) {
 	return productos, nil
 }
 
-func agregarProducto(db *sql.DB, nombre string, cantidad int, precioUnitario float64) (int, error) {
+func AgregarProducto(db *sql.DB, nombre string, cantidad int, precioUnitario float64) (int, error) {
 	query := "INSERT INTO productos (nombre, cantidad, Precio_Unitario) VALUES (@nombre, @cantidad, @precio); SELECT CAST(SCOPE_IDENTITY() AS int)"
 	var newID int
 	err := db.QueryRow(query,
@@ -182,7 +182,7 @@ func agregarProducto(db *sql.DB, nombre string, cantidad int, precioUnitario flo
 }
 
 // Función para actualizar un producto
-func actualizarProducto(db *sql.DB, id int, nombre string, cantidad int, precioUnitario float64) error {
+func ActualizarProducto(db *sql.DB, id int, nombre string, cantidad int, precioUnitario float64) error {
 	query := "UPDATE productos SET nombre = @nombre, cantidad = @cantidad, Precio_Unitario = @precio WHERE id = @id"
 	result, err := db.Exec(query,
 		sql.Named("nombre", nombre),
@@ -207,7 +207,7 @@ func actualizarProducto(db *sql.DB, id int, nombre string, cantidad int, precioU
 }
 
 // Función para eliminar un producto
-func eliminarProducto(db *sql.DB, id int) error {
+func EliminarProducto(db *sql.DB, id int) error {
 	result, err := db.Exec("DELETE FROM productos WHERE id = @id", sql.Named("id", id))
 	if err != nil {
 		return err
