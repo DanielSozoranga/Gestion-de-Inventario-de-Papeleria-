@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, simpledialog, messagebox
 import requests  # type: ignore # Necesitarás instalar requests con pip install requests
-
+        
 # Configuración de la ventana principal
 root = tk.Tk()
 root.title("Bienvenido al Sistema de Gestión de Inventario")
